@@ -1,0 +1,35 @@
+{
+  "name": "z5-skel",
+  "version": "0.1.0",
+  "description": "A skeleton for building modern HTML5 apps in Z5 stack",
+  "main": "app.js",
+  "config": {
+    "domain": "",
+    "debug_port": 8080
+  },
+  "scripts": {
+    "prepare-dist-dir": "mkdir -p dist && rm -rf dist/* && cp -rd src/assets/* dist/",
+	"compile-coffee": "find src/{lib,styles,views,modules,actions} -type f -name '*.coffee' | xargs -I % sh -c 'coffee --no-header -cbs < % > %__c__.js'",
+	"src-cleanup": "find src/{lib,styles,views,modules,actions} -type f -name '*.coffee__c__.js' | xargs rm -f",
+    "compile-js": "find src/{lib,styles,views,modules,actions} -type f -name '*.js' | xargs uglifyjs -c -m --screw-ie8 -o dist/app.js --",
+    "build": "npm run -s prepare-dist-dir && npm run -s compile-coffee && npm run -s compile-js && npm run -s src-cleanup",
+    "pre-serve": "npm run -s build && mv dist/index.html dist/200.html",
+    "server": "npm run -s pre-serve && jw-jspm-server --port=$npm_package_config_debug_port --no-browser --quiet dist/",
+    "deploy": "npm run -s pre-serve && surge dist $npm_package_config_domain",
+    "undeploy": "surge teardown $npm_package_config_domain"
+  },
+  "keywords": [
+    "z5",
+    "html5",
+    "js",
+    "minimal"
+  ],
+  "author": "plugnburn",
+  "license": "ISC",
+  "devDependencies": {
+    "coffee-script": "^1.10.0",
+    "jw-jspm-server": ">=0.0.2",
+    "surge": ">=0.17.7",
+    "uglify-js": ">=2.6.2"
+  }
+}
